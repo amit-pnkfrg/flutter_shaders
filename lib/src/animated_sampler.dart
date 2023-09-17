@@ -6,6 +6,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 
 /// A callback for the [AnimatedSamplerBuilder] widget.
 typedef AnimatedSamplerBuilder = void Function(
@@ -111,15 +112,38 @@ class _ShaderSamplerBuilder extends SingleChildRenderObjectWidget {
 
 // A render object that conditionally converts its child into a [ui.Image]
 // and then paints it in place of the child.
-class _RenderShaderSamplerBuilderWidget extends RenderProxyBox {
-  // Create a new [_RenderSnapshotWidget].
+class _RenderShaderSamplerBuilderWidget extends RenderProxyBox implements TickerProvider {
+  late AnimationController _animationController;
+  late Ticker _ticker;
+
   _RenderShaderSamplerBuilderWidget({
     required double devicePixelRatio,
     required AnimatedSamplerBuilder builder,
     required bool enabled,
   })  : _devicePixelRatio = devicePixelRatio,
         _builder = builder,
-        _enabled = enabled;
+        _enabled = enabled {
+    _ticker = createTicker(_tick);
+    _animationController = AnimationController(
+      duration: const Duration(hours: 1),
+      vsync: this,
+    )..repeat();
+  }
+
+  void _tick(Duration elapsed) {
+    // ... handle animation logic based on elapsed time if necessary...
+    markNeedsPaint();
+  }
+
+  @override
+  Ticker createTicker(TickerCallback onTick) => Ticker(onTick);
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    _ticker.dispose();
+    super.dispose();
+  }
 
   @override
   OffsetLayer updateCompositedLayer(
