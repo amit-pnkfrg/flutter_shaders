@@ -113,7 +113,6 @@ class _ShaderSamplerBuilder extends SingleChildRenderObjectWidget {
 // A render object that conditionally converts its child into a [ui.Image]
 // and then paints it in place of the child.
 class _RenderShaderSamplerBuilderWidget extends RenderProxyBox implements TickerProvider {
-  late AnimationController _animationController;
   late Ticker _ticker;
 
   _RenderShaderSamplerBuilderWidget({
@@ -123,11 +122,7 @@ class _RenderShaderSamplerBuilderWidget extends RenderProxyBox implements Ticker
   })  : _devicePixelRatio = devicePixelRatio,
         _builder = builder,
         _enabled = enabled {
-    _ticker = createTicker(_tick);
-    _animationController = AnimationController(
-      duration: const Duration(hours: 1),
-      vsync: this,
-    )..repeat();
+    _ticker = createTicker(_tick)..start();
   }
 
   void _tick(Duration elapsed) {
@@ -140,7 +135,6 @@ class _RenderShaderSamplerBuilderWidget extends RenderProxyBox implements Ticker
 
   @override
   void dispose() {
-    _animationController.dispose();
     _ticker.dispose();
     super.dispose();
   }
